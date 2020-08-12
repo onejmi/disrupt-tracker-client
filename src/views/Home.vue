@@ -8,6 +8,12 @@
                     <v-icon class="ml-2">mdi-timer</v-icon>
                 </v-btn>
                 <time-elapsed :start-time="lastStartTime" v-if="disrupted"/>
+                <v-dialog
+                v-model="showTagMenu"
+                max-width="360"
+                >
+                    <tag-selector @select="submitTag" :open="showTagMenu"></tag-selector>
+                </v-dialog>
             </v-col>
         </v-row>
   </v-container>
@@ -15,53 +21,62 @@
 
 <script lang="ts">
 
-import {defineComponent, reactive, ref, Ref, toRefs, onMounted} from '@vue/composition-api'
+import {defineComponent, reactive, ref, Ref, toRefs, onMounted, watch} from '@vue/composition-api'
 import TimeElapsed from '@/components/TimeElapsed.vue'
-import { Disruption } from '@/model/disruption'
+import TagSelector from '@/components/TagSelector.vue'
+import { Disruption, Tag } from '@/model/disruption'
 import fetchAPI from '@/network/request'
 
 export default defineComponent({
     name: 'Home',
     components: {
-        TimeElapsed
+        TimeElapsed,
+        TagSelector
     },
     setup() {
-      const loading = ref(false)
+      const loading = ref(true)
       const disrupted = ref(false)
       const lastStartTime = ref(-1)
+      const showTagMenu = ref(false)
       const disruptions : Ref<Disruption[]> = ref([])
       const buttonStyle = reactive({
           content: 'Disrupt',
           color: 'error'
       })
-      const toggle = async () => {
+
+      const submitTag = (tag: any) => {
+            const disruption = {
+                tagID: tag.id,
+                startTime: lastStartTime.value,
+                endTime: Date.now()
+            }
+            disruptions.value.push(disruption)
+            fetchAPI('/user/disruptions', { method: 'post', body: JSON.stringify(disruption) })
+            buttonStyle.content = 'Disrupt'
+            buttonStyle.color = 'error'
+            
+            disrupted.value = false
+            showTagMenu.value = false
+            //reset menu state
+      }
+      //lastTimeSync -> mongodb hook
+      const toggle = () => {
           if (disrupted.value) {
-              //todo change this to add option for tagging, but just for now..
-              const disruption: Disruption = {
-                  tagID: 6263,
-                  startTime: lastStartTime.value,
-                  endTime: Date.now()
-              }
-              disruptions.value.push(disruption)
-              loading.value = true
-              await fetchAPI('/user/disruptions', {
-                  method: 'post',
-                  body: JSON.stringify(disruption)
-              })
-              loading.value = false
-              buttonStyle.content = 'Disrupt'
-              buttonStyle.color = 'error'
+              showTagMenu.value = true
           } else {
               lastStartTime.value = Date.now()
               buttonStyle.content = 'Back to work!'
               buttonStyle.color = 'success'
+              disrupted.value = true
           }
-          disrupted.value = !disrupted.value
       }
 
-      onMounted(async () => { disruptions.value = await fetchAPI('/user/disruptions') })
+      onMounted(async () => {
+          disruptions.value = await fetchAPI('/user/disruptions') 
+          loading.value = false
+      })
 
-      return { loading, disrupted, lastStartTime, toggle, ...toRefs(buttonStyle) }
+      return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, ...toRefs(buttonStyle) }
     }
 })
 
