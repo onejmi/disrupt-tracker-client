@@ -9,33 +9,90 @@
                 <v-form
                 ref="form">
                     <v-card-text>
-                        <v-autocomplete
-                            v-model="tag"
-                            :items="tags"
-                            :loading="loading"
-                            :rules="[v => !!v || 'Required']"
-                            hide-no-data
-                            hide-selected
-                            item-text="name"
-                            label="Choose a tag"
-                            placeholder="Type to search a tag"
-                            prepend-icon="mdi-tag"
-                            return-object
-                        ></v-autocomplete>
+                        <v-combobox
+                        v-model="tag"
+                        :loading="loading"
+                        :search-input.sync="search"
+                        :items="tags"
+                        hide-selected
+                        label="Search for an option"
+                        small-chips
+                        solo
+                        >
+                        <template v-slot:no-data>
+                            <v-list-item
+                            @click.stop="create(search)"
+                            v-if="tags.length < tagLimit">
+                            <span class="subheading" style="margin-right: 7px;">Create</span>
+                            <v-chip
+                                :color="`${colors[nonce]} lighten-3`"
+                                label
+                                small
+                            >
+                                {{ search }}
+                            </v-chip>
+                            </v-list-item>
+                            <v-list-item v-else>
+                                <span class="subheading" style="margin-right: 7px; color: red;">Tag limit reached ({{ tagLimit }})</span>
+                            </v-list-item>
+                        </template>
+                        <template v-slot:selection="{ attrs, item, selected }">
+                            <v-chip
+                            v-if="item === Object(item)"
+                            v-bind="attrs"
+                            :color="`${colors[item.value.color]} lighten-3`"
+                            :input-value="selected"
+                            label
+                            small
+                            >
+                            <span class="pr-2">
+                                {{ item.text }}
+                            </span>
+                            <v-icon
+                                small
+                                @click="resetSelection"
+                            >mdi-close</v-icon>
+                            </v-chip>
+                        </template>
+                        <template v-slot:item="{ index, item }">
+                            <v-text-field
+                            v-if="editing === item"
+                            v-model="editing.text"
+                            autofocus
+                            flat
+                            background-color="transparent"
+                            hide-details
+                            solo
+                            @keyup.enter="edit(index, item)"
+                            ></v-text-field>
+                            <v-chip
+                            v-else
+                            :color="`${colors[item.value.color]} lighten-3`"
+                            dark
+                            label
+                            small
+                            >
+                            {{ item.value.name }}
+                            </v-chip>
+                            <v-spacer></v-spacer>
+                            <v-list-item-action @click.stop>
+                            <v-btn
+                                icon
+                                @click.stop.prevent="edit(index, item)"
+                            >
+                                <v-progress-circular indeterminate v-if="editLoading.includes(item.value.id)"></v-progress-circular>
+                                <v-icon v-else>{{ editing !== item ? 'mdi-pencil' : 'mdi-check' }}</v-icon>
+                            </v-btn>
+                            </v-list-item-action>
+                        </template>
+                        </v-combobox>
                     </v-card-text>
                     <v-card-actions>    
                         <v-btn @click="select" :disabled="disabled">Select</v-btn>
-                        <v-btn @click="openTagCreator">New Tag</v-btn>
+                        <v-btn>New Tag</v-btn>
                     </v-card-actions>    
                 </v-form>
             </v-container>
-            <v-dialog
-            max-height="100"
-            max-width="220"
-            v-model="displayTagCreator"
-            >
-                <new-tag-creator @tag:new="closeTagCreator" :open="displayTagCreator"></new-tag-creator>
-            </v-dialog>
         </v-row>
     </v-card>
 </template>
@@ -63,9 +120,16 @@ export default defineComponent({
     const tags : Ref<any[]> = ref([])
     const form : Ref<any> = ref(null)
 
-    const displayTagCreator = ref(false)
+    const editing : Ref<any> = ref(null)
+    const search : Ref<any> = ref(null)
+    const itemIndex : Ref<number> = ref(-1)
+    const nonce = ref(0)
+    const editLoading : Ref<string[]> = ref([])
 
     let userTags: Tag[]
+    const colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange']
+
+    const tagLimit = 50
 
     onMounted(refresh)
 
@@ -78,7 +142,7 @@ export default defineComponent({
         tags.value = userTags.map((disruptionTag: Tag) => {
             return {
                 value: disruptionTag,
-                name: disruptionTag.name
+                text: disruptionTag.name
             }
         })
         loading.value = false
@@ -90,16 +154,45 @@ export default defineComponent({
         }
     }
 
-    const openTagCreator = () => {
-        displayTagCreator.value = true
+    async function edit (index: number, item: any) {
+        if (!editing.value) {
+          editing.value = item
+        } else {
+          if(editing.value.text != item.value.name && userTags.some(e => e.name == editing.value.text)) return
+          editLoading.value.push(item.value.id)
+          await fetchAPI('/user/tags', {
+              method: 'PATCH',
+              body: JSON.stringify({
+                  tagId: item.value.id,
+                  name: editing.value.text
+              })
+          })
+          editLoading.value = editLoading.value.filter(e => e !== item.value.id)
+          item.value.name = editing.value.text
+          editing.value = null
+        }
     }
 
-    const closeTagCreator = async (tagName: string) => {
-        displayTagCreator.value = false
+    function resetSelection() {
+        tag.value = null
+    }
+
+    async function create(tagName: string) {
+        if(loading.value) return
+        if(userTags.some(e => e.name == tagName)) return
+        loading.value = true
+        await fetchAPI('/user/tags', { 
+            method: 'POST',
+            body: JSON.stringify({
+                name: tagName,
+                color: nonce.value
+            })
+        })
         await refresh()
-        console.log(tagName)
-        tag.value = userTags.find((disruptionTag) => disruptionTag.name == tagName)
-        console.log(tag.value)
+        nonce.value++
+        if(nonce.value >= colors.length) nonce.value = 0
+        loading.value = false
+        tag.value = tags.value.find(e => e.text == tagName)
     }
 
     watch(() => props.open, (curr, prev) => {
@@ -111,9 +204,13 @@ export default defineComponent({
         }
     })
 
-    watch(tag, (curr, prev) => console.log(curr?.name + " " + prev?.name))
+    watch(tag, (curr, prev) => {
+        if(curr && typeof curr === 'string' && curr.length > 0 && userTags.length < tagLimit) {
+            create(curr)
+        }
+    })
 
-    return { tag, loading, tags, select, openTagCreator, displayTagCreator, closeTagCreator, disabled, form }
+    return { tag, loading, tags, select, disabled, form, colors, edit, editing, search, nonce, create, resetSelection, tagLimit, editLoading }
   }
 })
 </script>

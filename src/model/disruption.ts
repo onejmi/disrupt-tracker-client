@@ -1,6 +1,7 @@
 export interface Tag {
     readonly id: number
-    name: string
+    name: string,
+    color: number
     positive?: boolean
 }
 
