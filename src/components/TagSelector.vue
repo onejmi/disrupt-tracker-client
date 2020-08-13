@@ -14,15 +14,18 @@
                         :loading="loading"
                         :search-input.sync="search"
                         :items="tags"
-                        hide-selected
+                        :rules="[v => !!v || 'Required', v => v && userTags.some(e => v.text == e.name) || 'Save your edit!']"
                         label="Search for an option"
                         small-chips
                         solo
                         >
                         <template v-slot:no-data>
+                            <v-list-item v-if="search && search.length > nameLimit">
+                                <span class="subheading" style="color: red;">Your tag is too long</span>
+                            </v-list-item>
                             <v-list-item
                             @click.stop="create(search)"
-                            v-if="tags.length < tagLimit">
+                            v-else-if="tags.length < tagLimit">
                             <span class="subheading" style="margin-right: 7px;">Create</span>
                             <v-chip
                                 :color="`${colors[nonce]} lighten-3`"
@@ -33,7 +36,7 @@
                             </v-chip>
                             </v-list-item>
                             <v-list-item v-else>
-                                <span class="subheading" style="margin-right: 7px; color: red;">Tag limit reached ({{ tagLimit }})</span>
+                                <span class="subheading" style="color: red;">Tag limit reached ({{ tagLimit }})</span>
                             </v-list-item>
                         </template>
                         <template v-slot:selection="{ attrs, item, selected }">
@@ -58,10 +61,11 @@
                             <v-text-field
                             v-if="editing === item"
                             v-model="editing.text"
+                            :rules="[v => v && v.length <= nameLimit || 'Too long']"
                             autofocus
                             flat
                             background-color="transparent"
-                            hide-details
+                            hide-details="auto"
                             solo
                             @keyup.enter="edit(index, item)"
                             ></v-text-field>
@@ -126,20 +130,21 @@ export default defineComponent({
     const nonce = ref(0)
     const editLoading : Ref<string[]> = ref([])
 
-    let userTags: Tag[]
+    const userTags: Ref<Tag[]> = ref([])
     const colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange']
 
     const tagLimit = 50
+    const nameLimit = 18
 
     onMounted(refresh)
 
     async function refresh() {
         loading.value = true
-        userTags = await fetchAPI('/user/tags') 
-        if(userTags == null || userTags.length < 1) {
+        userTags.value = await fetchAPI('/user/tags') 
+        if(userTags == null || userTags.value.length < 1) {
             disabled.value = true
         } else disabled.value = false
-        tags.value = userTags.map((disruptionTag: Tag) => {
+        tags.value = userTags.value.map((disruptionTag: Tag) => {
             return {
                 value: disruptionTag,
                 text: disruptionTag.name
@@ -158,7 +163,8 @@ export default defineComponent({
         if (!editing.value) {
           editing.value = item
         } else {
-          if(editing.value.text != item.value.name && userTags.some(e => e.name == editing.value.text)) return
+          if(editing.value.text.length > nameLimit) return
+          if(editing.value.text.length < 1 || (editing.value.text != item.value.name && userTags.value.some(e => e.name == editing.value.text))) return
           editLoading.value.push(item.value.id)
           await fetchAPI('/user/tags', {
               method: 'PATCH',
@@ -167,9 +173,12 @@ export default defineComponent({
                   name: editing.value.text
               })
           })
+          const tagIndex = userTags.value.findIndex(e => e.name == item.value.name)
+          userTags.value[tagIndex].name = editing.value.text
           editLoading.value = editLoading.value.filter(e => e !== item.value.id)
           item.value.name = editing.value.text
           editing.value = null
+          form.value.validate() //todo test out validating on the go to cover edge case of "Save tag" error not removing from render when brought back to original name
         }
     }
 
@@ -179,7 +188,8 @@ export default defineComponent({
 
     async function create(tagName: string) {
         if(loading.value) return
-        if(userTags.some(e => e.name == tagName)) return
+        if(tagName.length > nameLimit) return
+        if(userTags.value.some(e => e.name == tagName)) return
         loading.value = true
         await fetchAPI('/user/tags', { 
             method: 'POST',
@@ -199,18 +209,19 @@ export default defineComponent({
         if(!props.open) {
             form.value.reset()
             loading.value = false
+            editing.value = null
         } else {
             if(!loading.value) refresh()
         }
     })
 
     watch(tag, (curr, prev) => {
-        if(!editing.value && curr && typeof curr === 'string' && curr.length > 0 && userTags.length < tagLimit) {
+        if(!editing.value && curr && typeof curr === 'string' && curr.length > 0 && userTags.value.length < tagLimit) {
             create(curr)
         }
     })
 
-    return { tag, loading, tags, select, disabled, form, colors, edit, editing, search, nonce, create, resetSelection, tagLimit, editLoading }
+    return { tag, loading, tags, select, disabled, form, colors, edit, editing, search, nonce, create, resetSelection, tagLimit, nameLimit, editLoading, userTags }
   }
 })
 </script>
