@@ -25,7 +25,7 @@
                             v-else-if="tags.length < tagLimit">
                             <span class="subheading" style="margin-right: 7px;">Create</span>
                             <v-chip
-                                :color="`${colors[nonce]} lighten-3`"
+                                :color="`${colors[nonce]} lighten-2`"
                                 label
                                 small
                             >
@@ -40,7 +40,7 @@
                             <v-chip
                             v-if="item === Object(item)"
                             v-bind="attrs"
-                            :color="`${colors[item.value.color]} lighten-3`"
+                            :color="`${colors[item.value.color]} lighten-2`"
                             :input-value="selected"
                             label
                             small
@@ -68,7 +68,7 @@
                             ></v-text-field>
                             <v-chip
                             v-else
-                            :color="`${colors[item.value.color]} lighten-3`"
+                            :color="`${colors[item.value.color]} lighten-2`"
                             dark
                             label
                             small
