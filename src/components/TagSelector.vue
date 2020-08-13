@@ -2,10 +2,7 @@
     <v-card class="pa-3">
         <v-card-title class="heading">Tag the disruption</v-card-title>
         <v-row class="text-center justify-center">
-            <v-col v-if="loading">
-                <v-progress-circular indeterminate color="grey"></v-progress-circular>
-            </v-col>
-            <v-container v-else>
+            <v-container>
                 <v-form
                 ref="form">
                     <v-card-text>
@@ -92,8 +89,7 @@
                         </v-combobox>
                     </v-card-text>
                     <v-card-actions>    
-                        <v-btn @click="select" :disabled="disabled">Select</v-btn>
-                        <v-btn>New Tag</v-btn>
+                        <v-btn @click="select" :disabled="disabled" color="primary">Select</v-btn>
                     </v-card-actions>    
                 </v-form>
             </v-container>
@@ -104,7 +100,6 @@
 <script lang="ts">
 import { defineComponent, ref, Ref, onMounted, watch } from '@vue/composition-api'
 import { Tag } from '@/model/disruption'
-import NewTagCreator from '@/components/NewTagCreator.vue'
 import fetchAPI from '@/network/request'
 export default defineComponent({
   name: 'TagSelector',
@@ -114,9 +109,7 @@ export default defineComponent({
           required: true
       }
   },
-  components: {
-      NewTagCreator
-  },
+  components: {},
   setup(props, context) {
     const tag : Ref<any> = ref(null)
     const loading = ref(true)
