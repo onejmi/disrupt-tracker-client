@@ -205,7 +205,7 @@ export default defineComponent({
     })
 
     watch(tag, (curr, prev) => {
-        if(curr && typeof curr === 'string' && curr.length > 0 && userTags.length < tagLimit) {
+        if(!editing.value && curr && typeof curr === 'string' && curr.length > 0 && userTags.length < tagLimit) {
             create(curr)
         }
     })
