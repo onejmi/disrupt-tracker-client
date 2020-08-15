@@ -33,7 +33,7 @@ export default defineComponent({
         TimeElapsed,
         TagSelector
     },
-    setup() {
+    setup(props, context) {
       const loading = ref(true)
       const disrupted = ref(false)
       const lastStartTime = ref(-1)
@@ -54,12 +54,12 @@ export default defineComponent({
             fetchAPI('/user/disruptions', { method: 'post', body: JSON.stringify(disruption) })
             buttonStyle.content = 'Disrupt'
             buttonStyle.color = 'error'
-            
             disrupted.value = false
             showTagMenu.value = false
             //reset menu state
       }
       //lastTimeSync -> mongodb hook
+      //remove seemingly useless 'disruptons' reactive variable
       const toggle = () => {
           if (disrupted.value) {
               showTagMenu.value = true

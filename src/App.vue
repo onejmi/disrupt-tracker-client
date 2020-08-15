@@ -34,8 +34,8 @@ export default Vue.extend({
     Home,
   },
 
-  data: () => ({
-    //
-  }),
+  setup() {
+    
+  }
 });
 </script>
