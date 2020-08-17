@@ -1,6 +1,6 @@
 import keys from '@/config/keys'
 
-export default async function fetchAPI(endpoint: string, options?: object, json: boolean = true) {
+export default async function fetchAPI(endpoint: string, options?: object, json: boolean = true, withError: boolean = false) {
     const res = await fetch(
         `${keys.apiURL}/api${endpoint}`, 
         {
@@ -12,6 +12,6 @@ export default async function fetchAPI(endpoint: string, options?: object, json:
             ...options
         }
     )
-    if(json) return await res.json()
+    if(json && !withError) return await res.json()
     return res
 }

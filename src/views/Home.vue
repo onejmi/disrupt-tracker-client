@@ -14,6 +14,23 @@
                 >
                     <tag-selector @select="submitTag" :open="showTagMenu"></tag-selector>
                 </v-dialog>
+                <v-snackbar
+                    v-model="snackbar"
+                    timeout="3000"
+                    >
+                    {{ errorMessage }}
+
+                    <template v-slot:action="{ attrs }">
+                        <v-btn
+                        color="blue"
+                        text
+                        v-bind="attrs"
+                        @click="snackbar = false"
+                        >
+                        Close
+                        </v-btn>
+                    </template>
+            </v-snackbar>
             </v-col>
         </v-row>
   </v-container>
@@ -26,6 +43,7 @@ import TimeElapsed from '@/components/TimeElapsed.vue'
 import TagSelector from '@/components/TagSelector.vue'
 import { Disruption, Tag } from '@/model/disruption'
 import fetchAPI from '@/network/request'
+import { useDisruptions } from '@/store/disruptions'
 
 export default defineComponent({
     name: 'Home',
@@ -35,27 +53,32 @@ export default defineComponent({
     },
     setup(props, context) {
       const loading = ref(true)
-      const disrupted = ref(false)
-      const lastStartTime = ref(-1)
       const showTagMenu = ref(false)
-      const disruptions : Ref<Disruption[]> = ref([])
+      const { disruptions, loadDisruptions, disrupted, lastStartTime } = useDisruptions()
       const buttonStyle = reactive({
-          content: 'Disrupt',
-          color: 'error'
+          content: disrupted.value ? 'Back to work!' : 'Disrupt',
+          color: disrupted.value ? 'success' : 'error'
       })
+      const errorMessage = ref('')
+      const snackbar = ref(false)
 
-      const submitTag = (tag: any) => {
+      const submitTag = async (tag: any) => {
             const disruption = {
                 tagID: tag.id,
                 startTime: lastStartTime.value,
                 endTime: Date.now()
             }
             disruptions.value.push(disruption)
-            fetchAPI('/user/disruptions', { method: 'post', body: JSON.stringify(disruption) })
             buttonStyle.content = 'Disrupt'
             buttonStyle.color = 'error'
             disrupted.value = false
             showTagMenu.value = false
+            fetchAPI('/user/disruptions', { method: 'post', body: JSON.stringify(disruption) }, true, true).then((response) => {
+                if(!response.ok) {
+                    errorMessage.value = "There's a time conflict!"
+                    snackbar.value = true
+                }
+            })
             //reset menu state
       }
       //lastTimeSync -> mongodb hook
@@ -72,11 +95,11 @@ export default defineComponent({
       }
 
       onMounted(async () => {
-          disruptions.value = await fetchAPI('/user/disruptions') 
+          await loadDisruptions()
           loading.value = false
       })
 
-      return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, ...toRefs(buttonStyle) }
+      return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, errorMessage, snackbar, ...toRefs(buttonStyle) }
     }
 })
 

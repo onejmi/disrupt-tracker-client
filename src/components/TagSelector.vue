@@ -101,6 +101,8 @@
 import { defineComponent, ref, Ref, onMounted, watch } from '@vue/composition-api'
 import { Tag } from '@/model/disruption'
 import fetchAPI from '@/network/request'
+import { colors } from '@/store/constants'
+import { useDisruptions } from '@/store/disruptions'
 export default defineComponent({
   name: 'TagSelector',
   props: {
@@ -123,17 +125,16 @@ export default defineComponent({
     const nonce = ref(0)
     const editLoading : Ref<string[]> = ref([])
 
-    const userTags: Ref<Tag[]> = ref([])
-    const colors = ['green', 'purple', 'indigo', 'cyan', 'teal', 'orange']
-
     const tagLimit = 50
     const nameLimit = 18
+
+    const { loadTags, tags: userTags } = useDisruptions()
 
     onMounted(refresh)
 
     async function refresh() {
         loading.value = true
-        userTags.value = await fetchAPI('/user/tags') 
+        await loadTags()
         if(userTags == null || userTags.value.length < 1) {
             disabled.value = true
         } else disabled.value = false
