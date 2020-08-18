@@ -122,13 +122,12 @@ export default defineComponent({
     const editing : Ref<any> = ref(null)
     const search : Ref<any> = ref(null)
     const itemIndex : Ref<number> = ref(-1)
-    const nonce = ref(0)
     const editLoading : Ref<string[]> = ref([])
 
     const tagLimit = 50
     const nameLimit = 18
 
-    const { loadTags, tags: userTags } = useDisruptions()
+    const { loadTags, tags: userTags, nonce } = useDisruptions()
 
     onMounted(refresh)
 
@@ -195,6 +194,10 @@ export default defineComponent({
         await refresh()
         nonce.value++
         if(nonce.value >= colors.length) nonce.value = 0
+        await fetchAPI('/user/nonce', {
+            method: 'PUT',
+            body: JSON.stringify({ nonce: nonce.value })
+        })
         loading.value = false
         tag.value = tags.value.find(e => e.text == tagName)
     }

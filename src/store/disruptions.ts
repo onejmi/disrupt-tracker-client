@@ -11,6 +11,7 @@ const disruptions : Ref<Disruption[]> = ref([])
 const tags : Ref<Tag[]> = ref([])
 const disrupted = ref(false)
 const lastStartTime = ref(-1)
+const nonce = ref(0)
 
 export function useDisruptions() {
 
@@ -22,6 +23,10 @@ export function useDisruptions() {
         tags.value = await fetchAPI('/user/tags')
     }
 
-    return { disruptions, loadDisruptions, tags, loadTags, disrupted, lastStartTime }
+    const loadNonce = async () => {
+        nonce.value = (await fetchAPI('/user/nonce')).nonce
+    }
+
+    return { disruptions, loadDisruptions, tags, loadTags, disrupted, lastStartTime, nonce, loadNonce }
 
 }

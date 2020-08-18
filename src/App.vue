@@ -18,9 +18,9 @@
     </v-app-bar>
 
     <v-main>
-      <v-scroll-x-transition mode="out-in" :hide-on-leave=true>
+      <v-slide-x-transition mode="out-in" :hide-on-leave=true>
         <router-view></router-view>
-      </v-scroll-x-transition>
+      </v-slide-x-transition>
     </v-main>
   </v-app>
 </template>

@@ -52,9 +52,9 @@ export default defineComponent({
         TagSelector
     },
     setup(props, context) {
-      const loading = ref(true)
+      const loading = ref(false)
       const showTagMenu = ref(false)
-      const { disruptions, loadDisruptions, disrupted, lastStartTime } = useDisruptions()
+      const { disruptions, loadDisruptions, disrupted, lastStartTime, loadNonce } = useDisruptions()
       const buttonStyle = reactive({
           content: disrupted.value ? 'Back to work!' : 'Disrupt',
           color: disrupted.value ? 'success' : 'error'
@@ -96,7 +96,7 @@ export default defineComponent({
 
       onMounted(async () => {
           await loadDisruptions()
-          loading.value = false
+          await loadNonce()
       })
 
       return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, errorMessage, snackbar, ...toRefs(buttonStyle) }
