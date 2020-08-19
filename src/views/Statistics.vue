@@ -3,18 +3,14 @@
       <v-container v-else>
         <v-row>
           <v-col cols="8">
-            <v-card class="pl-3 pr-3">
+            <v-card class="pl-3 pr-3" min-height="400">
               <v-card-title>Last 12 hours</v-card-title>
               <v-card-text v-if="!data || data.length < 1">There have been no disruptions in the past 12 hours</v-card-text>
               <apexchart type="rangeBar" :options="mainChartOptions" :series="mainSeries" v-else></apexchart>
             </v-card>
           </v-col>
           <v-col>
-            <v-card>
-              <v-card-title>Weekly Distribution</v-card-title>
-              <apexchart type="donut" :options="completePieOptions" :series="pieSeries"></apexchart>
-            </v-card>
-            <v-card class="mt-6">
+            <v-card class="mb-6">
               <v-card-title>Goal Status</v-card-title>
               <v-card-subtitle>{{ Math.floor(status.value) + "/" + threshold}} minutes</v-card-subtitle>
               <v-card-text>
@@ -32,6 +28,10 @@
                 <span style="font-size: 20px;">{{ status.emoji }}</span>
                 </v-progress-linear>
               </v-card-text>
+            </v-card>
+            <v-card>
+              <v-card-title>Weekly Distribution</v-card-title>
+              <apexchart type="donut" :options="completePieOptions" :series="pieSeries"></apexchart>
             </v-card>
           </v-col>
         </v-row>
@@ -76,6 +76,8 @@ export default defineComponent({
     const minPieDate = new Date(currDate)
     minDate.setHours(minDate.getHours() - 12)
     minPieDate.setDate(minPieDate.getDate() - 7)
+
+    let topPieEntries : Map<string, number>
     
     function genData() {
       data.value = disruptions.value
@@ -98,7 +100,9 @@ export default defineComponent({
           distribution.value.set(currTag.name, lastValue + Math.floor(getMinutesFromDisruption(disruption)))
         }
       })
-      distribution.value.forEach((v, k) => {
+
+      topPieEntries = getTopPieEntries()
+      topPieEntries.forEach((v, k) => {
         const tag = tags.value.find((t) => t.name == k)
         if(tag != null) {
           const color = graphColors[tag.color]
@@ -235,8 +239,6 @@ export default defineComponent({
       threshold.value = (await fetchAPI('/user/threshold')).threshold
       genData()
       mainSeries.value = [{ data: data.value }]
-
-      const topPieEntries = getTopPieEntries()
       pieSeries.value = [...topPieEntries.values()]
       completePieOptions.value = {
         ...pieChartOptions,

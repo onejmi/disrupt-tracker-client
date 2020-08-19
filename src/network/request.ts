@@ -15,3 +15,18 @@ export default async function fetchAPI(endpoint: string, options?: object, json:
     if(json && !withError) return await res.json()
     return res
 }
+
+export async function fetchAuth(endpoint: string, options?: object) {
+    const res = await fetch(
+        `${keys.apiURL}/auth/${endpoint}`,
+        {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            ...options
+        }
+    )
+    return res
+}
