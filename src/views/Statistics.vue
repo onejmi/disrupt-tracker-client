@@ -21,7 +21,7 @@
                 @change="writeThresholdChange"
                 thumb-label></v-slider>
                 <v-progress-linear
-                  :value="status.percentage"
+                  :value="100 - status.percentage"
                   :color="status.color"
                   height="35"
                 >

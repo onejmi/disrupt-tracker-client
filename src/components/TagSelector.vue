@@ -101,7 +101,7 @@
 import { defineComponent, ref, Ref, onMounted, watch } from '@vue/composition-api'
 import { Tag } from '@/model/disruption'
 import fetchAPI from '@/network/request'
-import { colors } from '@/store/constants'
+import { colors, nameLimit } from '@/store/constants'
 import { useDisruptions } from '@/store/disruptions'
 export default defineComponent({
   name: 'TagSelector',
@@ -125,7 +125,6 @@ export default defineComponent({
     const editLoading : Ref<string[]> = ref([])
 
     const tagLimit = 50
-    const nameLimit = 18
 
     const { loadTags, tags: userTags, nonce } = useDisruptions()
 

@@ -1,8 +1,7 @@
 <html>
     <head>
         <script>
-            new BroadcastChannel('auth_channel').postMessage('success')
-            window.close()
+            window.opener.postMessage('success')
         </script>
     </head>
 </html>

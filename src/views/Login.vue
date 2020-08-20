@@ -18,14 +18,18 @@ export default defineComponent({
   name: 'Login',
   setup(props, context) {
     function login(strategy: string) {
-        window.open(`${keys.apiURL}/auth/${strategy}`, '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes')
-        const bc = new BroadcastChannel('auth_channel');
-        bc.onmessage = (ev) => {
-            if(ev.data == 'success') { 
-                bc.close()
-                context.root.$router.replace('/')
-            }
-        }
+        const w = window.open(`${keys.apiURL}/auth/${strategy}`, 'Login', 'location=yes,height=570,width=520,scrollbars=yes,status=yes')
+        window.addEventListener('message', (e) => {
+            w?.close()
+            if(e.data == 'success') context.root.$router.replace('/')
+        })
+        // const bc = new BroadcastChannel('auth_channel');
+        // bc.onmessage = (ev) => {
+        //     if(ev.data == 'success') { 
+        //         bc.close()
+        //         context.root.$router.replace('/')
+        //     }
+        // }
     }
     return { login }
   }
