@@ -15,6 +15,7 @@
                     <tag-selector @select="submitTag" :open="showTagMenu"></tag-selector>
                 </v-dialog>
                 <v-snackbar
+                    v-if="snackbar"
                     v-model="snackbar"
                     timeout="3000"
                     >
@@ -95,8 +96,8 @@ export default defineComponent({
       }
 
       onMounted(async () => {
-          await loadDisruptions()
-          await loadNonce()
+          loadDisruptions()
+          loadNonce()
       })
 
       return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, errorMessage, snackbar, ...toRefs(buttonStyle) }

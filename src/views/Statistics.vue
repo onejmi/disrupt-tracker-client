@@ -31,7 +31,8 @@
             </v-card>
             <v-card>
               <v-card-title>Weekly Distribution</v-card-title>
-              <apexchart type="donut" :options="completePieOptions" :series="pieSeries"></apexchart>
+              <v-card-text v-if="!distribution || distribution.size < 1">Nothing to see here...</v-card-text>
+              <apexchart type="donut" :options="completePieOptions" :series="pieSeries" v-else></apexchart>
             </v-card>
           </v-col>
         </v-row>
@@ -249,7 +250,7 @@ export default defineComponent({
     })
 
     return { mainChartOptions, mainSeries, completePieOptions, 
-    pieSeries, loading, data, status, threshold, writeThresholdChange }
+    pieSeries, loading, data, status, threshold, distribution, writeThresholdChange }
   }
 })
 </script>

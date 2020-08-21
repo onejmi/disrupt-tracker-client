@@ -4,6 +4,7 @@
       app
       elevation="0"
       color="white"
+      v-if="$route.name != 'Login'"
     >
       <v-spacer></v-spacer>
       <v-btn icon @click="$router.replace('/').catch(() => {})">

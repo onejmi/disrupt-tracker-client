@@ -21,7 +21,15 @@
                 + date.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2})
             })
             let interval : number
-            onMounted(() => interval = setInterval(() => timeElapsed.value = Date.now() - props.startTime, 1000))
+            const tick = new Audio(require('@/assets/audio/default-tick.mp3'))
+            onMounted(() => {
+                tick.play()
+                interval = setInterval(() => {
+                timeElapsed.value = Date.now() - props.startTime 
+                tick.play()
+                }, 1000)
+            }
+            )
             onUnmounted(() => clearInterval(interval))
             return { formattedTime }
         }
