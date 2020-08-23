@@ -12,7 +12,7 @@
                 v-model="showTagMenu"
                 max-width="360"
                 >
-                    <tag-selector @select="submitTag" :open="showTagMenu"></tag-selector>
+                    <tag-selector @select="submitTag" @discard="discard" :open="showTagMenu"></tag-selector>
                 </v-dialog>
                 <v-snackbar
                     v-if="snackbar"
@@ -95,12 +95,20 @@ export default defineComponent({
           }
       }
 
+      const discard = () => {
+          buttonStyle.content = 'Disrupt'
+          buttonStyle.color = 'error'
+          disrupted.value = false
+          showTagMenu.value = false
+      }
+
       onMounted(async () => {
           loadDisruptions()
           loadNonce()
       })
 
-      return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, errorMessage, snackbar, ...toRefs(buttonStyle) }
+      return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, errorMessage, snackbar, 
+      discard, ...toRefs(buttonStyle) }
     }
 })
 

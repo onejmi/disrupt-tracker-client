@@ -90,6 +90,8 @@
                     </v-card-text>
                     <v-card-actions>    
                         <v-btn @click="select" :disabled="disabled" color="primary">Select</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn @click="$emit('discard')" color="error">Discard</v-btn>
                     </v-card-actions>    
                 </v-form>
             </v-container>
