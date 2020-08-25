@@ -1,24 +1,43 @@
 <template>
-    <view-loading v-if="loadingThresh"></view-loading>
-    <v-card class="mb-6" v-else>
-      <v-card-title>Goal Status</v-card-title>
-      <v-card-subtitle>{{ threshold - Math.floor(status.value) + "/" + threshold}} minutes</v-card-subtitle>
-      <v-card-text>
-        <v-slider
-        max="1000"
-        step="10"
-        v-model="threshold"
-        @change="writeThresholdChange"
-        thumb-label></v-slider>
-        <v-progress-linear
-          :value="100 - status.percentage"
-          :color="status.color"
-          height="35"
-        >
-        <span style="font-size: 20px;">{{ status.emoji }}</span>
-        </v-progress-linear>
-      </v-card-text>
-    </v-card>
+    <v-container class="mb-6 text-center">
+      <span style="font-size: 20vh;">{{ status.emoji }}</span>
+      <h2>Goal Status</h2>
+      <v-row>
+        <v-spacer></v-spacer>
+        <v-col>
+          <v-row>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-slider
+              light
+              style="width: 175px;"
+              max="1000"
+              :min="Math.ceil(status.value / 10) * 10"
+              step="10"
+              v-model="threshold"
+              @change="writeThresholdChange"
+              thumb-label></v-slider>
+            </v-col>
+            <v-spacer></v-spacer>
+          </v-row>
+          <v-row>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-progress-linear
+                :value="100 - status.percentage"
+                :color="status.color"
+                height="25"
+                style="width: 325px"
+              >
+              <h4>{{ threshold - Math.floor(status.value) + "/" + threshold}} (minutes)</h4>
+              </v-progress-linear>
+            </v-col>
+            <v-spacer></v-spacer>
+          </v-row>
+        </v-col>
+        <v-spacer></v-spacer>
+      </v-row>
+    </v-container>
 </template>
 
 <script lang="ts">
@@ -39,9 +58,7 @@ export default defineComponent({
     }
   },
   setup(props, context) {
-    const loadingThresh = ref(true)
-    const { disruptions } = useDisruptions()
-    const threshold = ref(0)
+    const { disruptions, threshold } = useDisruptions()
     const minPieDate = new Date(props.currDate)
     minPieDate.setDate(minPieDate.getDate() - 7)
     let statusProgress : number = 0
@@ -49,9 +66,9 @@ export default defineComponent({
       value: 0,
       percentage: computed(() => 100 * (status.value / threshold.value)),
       emoji: computed(() => 
-        status.percentage < 40 ? "😀" : status.percentage < 75 ? "🙂" : status.percentage < 100 ? "😐" : "😕"),
+        status.percentage < 20 ? "😀" : status.percentage < 55 ? "🙂" : status.percentage < 85 ? "😐" : "😕"),
       color: computed(() => 
-      status.percentage < 40 ? "green" : status.percentage < 75 ? "blue" : status.percentage < 100 ? "yellow" : "red")
+      status.percentage < 20 ? "green" : status.percentage < 55 ? "blue" : status.percentage < 85 ? "yellow" : "red")
     })
 
     function genDistribution() {
@@ -71,14 +88,22 @@ export default defineComponent({
       })
     }
 
-    onMounted(async () => {
-      threshold.value = (await fetchAPI('/user/threshold')).threshold
+    onMounted(() => {
       genDistribution()
-      loadingThresh.value = false
-      console.log(statusProgress)
     })
 
-    return { status, threshold, writeThresholdChange, loadingThresh }
+    return { status, threshold, writeThresholdChange }
   }
 })
 </script>
+
+<style scoped>
+  >>>.v-slider__thumb {
+    height: 13px;
+    width: 13px;
+  }
+
+  >>>.v-slider--horizontal .v-slider__track-container {
+    height: 7px;
+  }
+</style>

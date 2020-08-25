@@ -1,9 +1,9 @@
 <template>
-    <v-card class="pl-3 pr-3" min-height="400">
-      <v-card-title>Last 12 hours</v-card-title>
-      <v-card-text v-if="!data || data.length < 1">There have been no disruptions in the past 12 hours</v-card-text>
+    <v-container class="text-center">
+      <h2>Last 12 hours</h2>
+      <h4 v-if="!data || data.length < 1">There have been no disruptions in the past 12 hours</h4>
       <apexchart type="rangeBar" :options="mainChartOptions" :series="mainSeries" v-else></apexchart>
-    </v-card>
+    </v-container>
 </template>
 
 <script lang="ts">

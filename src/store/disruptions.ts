@@ -12,6 +12,7 @@ const tags : Ref<Tag[]> = ref([])
 const disrupted = ref(false)
 const lastStartTime = ref(-1)
 const nonce = ref(0)
+const threshold = ref(0)
 
 export function useDisruptions() {
 
@@ -27,6 +28,11 @@ export function useDisruptions() {
         nonce.value = (await fetchAPI('/user/nonce')).nonce
     }
 
-    return { disruptions, loadDisruptions, tags, loadTags, disrupted, lastStartTime, nonce, loadNonce }
+    const loadThreshold = async () => {
+        threshold.value = (await fetchAPI('/user/threshold')).threshold
+    }
+
+    return { disruptions, loadDisruptions, tags, loadTags, disrupted, 
+        lastStartTime, nonce, loadNonce, threshold, loadThreshold }
 
 }

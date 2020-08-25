@@ -1,15 +1,26 @@
 <template>
       <view-loading v-if="loading"></view-loading>
       <v-container v-else>
-        <v-row>
-          <v-col cols="7" align-self="center">
+        <v-tabs
+          v-model="tab"
+          center-active
+          grow
+        >
+          <v-tab>One</v-tab>
+          <v-tab>Two</v-tab>
+          <v-tab>Three</v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
             <time-graph></time-graph>
-          </v-col>
-          <v-col>
+          </v-tab-item>
+          <v-tab-item>
             <goal-stats :currDate="currDate"></goal-stats>
+          </v-tab-item>
+          <v-tab-item>
             <distribution-stats :currDate="currDate"></distribution-stats>
-          </v-col>
-        </v-row>
+          </v-tab-item>
+        </v-tabs-items>
       </v-container>
 </template>
 
@@ -36,18 +47,18 @@ export default defineComponent({
     TimeGraph
   },
   setup() {
-    const { disruptions, tags, loadDisruptions, loadTags } = useDisruptions()
+    const { disruptions, tags, loadDisruptions, loadTags, loadThreshold } = useDisruptions()
     const loading = ref(true)
+    const tab = ref(0)
 
     const currDate = new Date()
 
     onMounted(async () => {
-      await loadDisruptions()
-      await loadTags()
+      await Promise.all([loadDisruptions(), loadTags(), loadThreshold()])
       loading.value = false
     })
 
-    return {  loading, status, currDate }
+    return {  loading, status, currDate, tab }
   }
 })
 </script>

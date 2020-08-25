@@ -1,9 +1,14 @@
 <template>
-    <v-card>
-        <v-card-title>Weekly Distribution</v-card-title>
-        <v-card-text v-if="!distribution || distribution.size < 1">Nothing to see here... {{ distribution.size }}</v-card-text>
-        <apexchart type="donut" :options="completePieOptions" :series="pieSeries" v-else></apexchart>
-    </v-card>
+    <v-container>
+        <v-row class="text-center">
+          <v-spacer></v-spacer>
+          <v-col>
+            <h4 v-if="!distribution || distribution.size < 1">Nothing yet...</h4>
+            <apexchart v-else width="500" type="donut" :options="completePieOptions" :series="pieSeries"></apexchart>
+          </v-col>
+          <v-spacer></v-spacer>
+        </v-row>
+    </v-container>
 </template>
 
 <script lang="ts">
@@ -66,6 +71,9 @@ export default defineComponent({
               position: 'right',
               offsetY: 0,
               height: 230,
+            },
+            title: {
+              text: "Weekly Distribution"
             }
     }
 
