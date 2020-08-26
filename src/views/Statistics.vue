@@ -6,9 +6,18 @@
           center-active
           grow
         >
-          <v-tab>One</v-tab>
-          <v-tab>Two</v-tab>
-          <v-tab>Three</v-tab>
+          <v-tab>
+            Recent
+            <v-icon class="ml-2">mdi-clock</v-icon>
+          </v-tab>
+          <v-tab>
+            Status
+            <v-icon class="ml-2">mdi-arm-flex</v-icon>
+          </v-tab>
+          <v-tab>
+            Distribution
+            <v-icon class="ml-2">mdi-chart-donut</v-icon>
+          </v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-tab-item>
