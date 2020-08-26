@@ -4,7 +4,7 @@
       app
       elevation="0"
       color="white"
-      v-if="$route.name != 'Login'"
+      v-if="loggedRoutes.some(name => name == $route.name)"
     >
       <v-spacer></v-spacer>
       <v-btn icon @click="$router.replace('/').catch(() => {})">
@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts">
+import { ref } from '@vue/composition-api'
 import Vue from 'vue';
 import Home from './views/Home.vue'
 
@@ -38,7 +39,9 @@ export default Vue.extend({
   },
 
   setup() {
-    
+    const loggedRoutes = ref(['Home', 'Statistics', 'Settings'])
+
+    return { loggedRoutes }
   }
 });
 </script>
