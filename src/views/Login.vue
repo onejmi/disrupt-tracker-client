@@ -1,11 +1,28 @@
 <template>
-    <v-container>
-        <v-btn @click="login('google')">
-            Login with Google
-        </v-btn>
-        <v-btn @click="login('github')">
-            Login with Github
-        </v-btn>
+    <v-container fluid fill-height>
+        <v-row>
+            <v-spacer></v-spacer>
+            <v-col md="2">
+                <v-card class="pa-3" max-width="300">
+                    <v-card-title class="justify-center">Sign In</v-card-title>
+                    <v-card-text class="justify-center">
+                        <v-row class="justify-center mb-4 mt-4">
+                            <v-btn @click="login('google')">
+                                <v-img class="mr-2" src="@/assets/g-logo.png" height="26" width="26"></v-img>
+                                with Google 
+                            </v-btn>
+                        </v-row>
+                        <v-row class="justify-center mb-4 mt-4">
+                            <v-btn @click="login('github')">
+                                <v-img class="mr-2" src="@/assets/github-32.png" height="26" width="26"></v-img>
+                                with Github 
+                            </v-btn>
+                        </v-row>   
+                    </v-card-text>
+                </v-card>
+            </v-col>
+            <v-spacer></v-spacer>
+        </v-row>
     </v-container>
 </template>
 
@@ -25,13 +42,6 @@ export default defineComponent({
             w?.close()
             if(e.data == 'success') context.root.$router.replace('/')
         })
-        // const bc = new BroadcastChannel('auth_channel');
-        // bc.onmessage = (ev) => {
-        //     if(ev.data == 'success') { 
-        //         bc.close()
-        //         context.root.$router.replace('/')
-        //     }
-        // }
     }
     return { login }
   }
