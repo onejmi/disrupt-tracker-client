@@ -1,8 +1,9 @@
 <template>
-    <v-container class="text-center">
+    <v-container class="text-center" id="graphParent">
       <h2>Last 12 hours</h2>
       <h4 v-if="!data || data.length < 1">There have been no disruptions in the past 12 hours</h4>
-      <apexchart type="rangeBar" :options="mainChartOptions" :series="mainSeries" v-else></apexchart>
+      <apexchart type="rangeBar" :options="mainChartOptions" :series="mainSeries" 
+      :height="graphParent" v-else></apexchart>
     </v-container>
 </template>
 
@@ -89,12 +90,14 @@ export default defineComponent({
       return tags.value.find((tag) => tag.id == id)
     }
 
+    const graphParent = window.innerHeight * .75
+
     onMounted(() => {
       genData()
       mainSeries.value = [{ data: data.value }]
     })
     
-    return { data, mainChartOptions, mainSeries }
+    return { data, mainChartOptions, mainSeries, graphParent }
 
   }
 })

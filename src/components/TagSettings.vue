@@ -20,7 +20,7 @@
                             background-color="transparent"
                             hide-details="auto"
                             solo
-                            @keyup.enter="edit"
+                            @keyup.enter="edit(tag.id)"
                             ></v-text-field>
                     </v-list-item-content>
                     <v-list-item-action class="mr-4">
