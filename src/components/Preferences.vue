@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <h3 class="font-weight-medium">Dark mode</h3>
-        <v-switch v-model="dark.state" :label="dark.label" @change="updateDarkMode"></v-switch>
+        <v-switch v-model="dark.state" :label="dark.label" @change="updateDarkMode" disabled></v-switch>
         <h3 class="font-weight-medium">Tick</h3>
         <v-switch v-model="tickSound.state" :label="tickSound.label" @change="updateTickSound"></v-switch>
     </v-container>
