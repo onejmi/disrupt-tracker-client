@@ -45,6 +45,7 @@ import TagSelector from '@/components/TagSelector.vue'
 import { Disruption, Tag } from '@/model/disruption'
 import fetchAPI from '@/network/request'
 import { useDisruptions } from '@/store/disruptions'
+import { useSettings } from '@/store/settings'
 
 export default defineComponent({
     name: 'Home',
@@ -56,6 +57,7 @@ export default defineComponent({
       const loading = ref(false)
       const showTagMenu = ref(false)
       const { disruptions, loadDisruptions, disrupted, lastStartTime, loadNonce } = useDisruptions()
+      const { loadSettings } = useSettings()
       const buttonStyle = reactive({
           content: disrupted.value ? 'Back to work!' : 'Disrupt',
           color: disrupted.value ? 'success' : 'error'
@@ -105,6 +107,7 @@ export default defineComponent({
       onMounted(async () => {
           loadDisruptions()
           loadNonce()
+          loadSettings()
       })
 
       return { loading, disrupted, lastStartTime, showTagMenu, toggle, submitTag, errorMessage, snackbar, 

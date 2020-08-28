@@ -4,6 +4,7 @@
 
 <script lang="ts">
     import {computed, defineComponent, onMounted, onUnmounted, ref} from "@vue/composition-api";
+import { useSettings } from '@/store/settings';
     export default defineComponent({
         name: "TimeElapsed",
         props: {
@@ -14,6 +15,7 @@
         },
         setup (props) {
             const timeElapsed = ref(Date.now() - props.startTime)
+            const { settings } = useSettings()
             const formattedTime = computed(() => {
                 const date = new Date(timeElapsed.value)
                 return date.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false})
@@ -23,13 +25,12 @@
             let interval : number
             const tick = new Audio(require('@/assets/audio/default-tick.mp3'))
             onMounted(() => {
-                tick.play()
+                if(settings.tickSound) tick.play()
                 interval = setInterval(() => {
                 timeElapsed.value = Date.now() - props.startTime 
-                tick.play()
+                if(settings.tickSound) tick.play()
                 }, 1000)
-            }
-            )
+            })
             onUnmounted(() => clearInterval(interval))
             return { formattedTime }
         }

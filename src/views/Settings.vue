@@ -1,5 +1,6 @@
 <template>
-  <v-container>
+  <view-loading v-if="loading"></view-loading>
+  <v-container v-else>
     <v-row>
       <v-col md="4" sm="12">
         <v-list>
@@ -34,19 +35,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from '@vue/composition-api'
+import { defineComponent, ref, watch, onMounted } from '@vue/composition-api'
+import { useSettings } from '@/store/settings'
 import TagSettings from '@/components/TagSettings.vue'
 import Preferences from '@/components/Preferences.vue'
 import AccountSettings from '@/components/AccountSettings.vue'
+import ViewLoading from '@/components/ViewLoading.vue'
 export default defineComponent({
   name: 'Settings',
   components: {
     TagSettings,
     Preferences,
-    AccountSettings
+    AccountSettings,
+    ViewLoading
   },
   setup() {
+    const loading = ref(true)
     const currSetting = ref(0)
+    const { loadSettings } = useSettings()
 
     watch(currSetting, (curr, prev) => {
       if(curr == null) currSetting.value = prev
@@ -58,7 +64,12 @@ export default defineComponent({
       'AccountSettings'
     ]
 
-    return { currSetting, pages }
+    onMounted(async () => {
+      await loadSettings()
+      loading.value = false
+    })
+
+    return { currSetting, pages, loading }
   }
 })
 </script>

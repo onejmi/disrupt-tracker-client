@@ -2,7 +2,7 @@
     <v-container fluid fill-height>
         <v-row>
             <v-spacer></v-spacer>
-            <v-col md="2">
+            <v-col md="3">
                 <v-card class="pa-3" max-width="300">
                     <v-card-title class="justify-center">Sign In</v-card-title>
                     <v-card-text class="justify-center">
