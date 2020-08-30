@@ -39,8 +39,8 @@ export default Vue.extend({
   },
 
   setup() {
+    if(!window.location.href.includes('www')) window.location.href = 'https://www.habbit-beta.ml/'
     const loggedRoutes = ref(['Home', 'Statistics', 'Settings'])
-
     return { loggedRoutes }
   }
 });
