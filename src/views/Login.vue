@@ -36,9 +36,7 @@ export default defineComponent({
   setup(props, context) {
     function login(strategy: string) {
         const w = window.open(`${keys.apiURL}/auth/${strategy}`, '_self')
-        console.log('oen')
         window.addEventListener('message', (e) => {
-            console.log('ome')
             w?.close()
             if(e.data == 'success') context.root.$router.replace('/')
         })
