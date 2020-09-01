@@ -7,15 +7,15 @@
           grow
         >
           <v-tab>
-            Recent
+            {{ recent }}
             <v-icon class="ml-2">mdi-clock</v-icon>
           </v-tab>
           <v-tab>
-            Status
+            {{ goal }}
             <v-icon class="ml-2">mdi-arm-flex</v-icon>
           </v-tab>
           <v-tab>
-            Distribution
+            {{ distribution }}
             <v-icon class="ml-2">mdi-chart-donut</v-icon>
           </v-tab>
         </v-tabs>
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, reactive, onMounted, computed } from '@vue/composition-api'
+import { defineComponent, ref, Ref, reactive, onMounted, computed, toRefs, onUnmounted } from '@vue/composition-api'
 import { useDisruptions } from '@/store/disruptions'
 import { graphColors } from '@/store/constants'
 import { Tag } from '@/model/disruption'
@@ -59,15 +59,33 @@ export default defineComponent({
     const { disruptions, tags, loadDisruptions, loadTags, loadThreshold } = useDisruptions()
     const loading = ref(true)
     const tab = ref(0)
+    const deviceWidth = ref(window.screen.width)
+    const computedSubs = reactive({
+      recent: computed(() => deviceWidth.value <= 480 ? '' : 'Recent'),
+      goal: computed(() => deviceWidth.value <= 480 ? '' : 'Status'),
+      distribution: computed(() => deviceWidth.value <= 480 ? '' : 'Distribution')
+    })
 
     const currDate = new Date()
+    let debouncer : any
+
+    function resizeHandler(e: Event) {
+      if(debouncer) clearTimeout(debouncer)
+      debouncer = setTimeout(() => deviceWidth.value = window.screen.width, 200)
+    }
 
     onMounted(async () => {
       await Promise.all([loadDisruptions(), loadTags(), loadThreshold()])
       loading.value = false
+      window.addEventListener('resize', resizeHandler)
     })
 
-    return {  loading, status, currDate, tab }
+    onUnmounted(() => {
+      window.removeEventListener('resize', resizeHandler)
+      clearTimeout(debouncer)
+    })
+
+    return {  loading, status, currDate, tab, ...toRefs(computedSubs) }
   }
 })
 </script>
