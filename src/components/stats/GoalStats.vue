@@ -66,7 +66,7 @@ export default defineComponent({
       value: 0,
       percentage: computed(() => 100 * (status.value / threshold.value)),
       emoji: computed(() => 
-        status.percentage < 20 ? "😀" : status.percentage < 55 ? "🙂" : status.percentage < 85 ? "😐" : "😕"),
+        status.percentage < 20 ? "💐" : status.percentage < 55 ? "🌷" : status.percentage < 85 ? "🌹" : "🥀"),
       color: computed(() => 
       status.percentage < 20 ? "green" : status.percentage < 55 ? "blue" : status.percentage < 85 ? "yellow" : "red")
     })
