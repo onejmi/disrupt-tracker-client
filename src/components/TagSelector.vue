@@ -20,6 +20,11 @@
                             <v-list-item v-if="search && search.length > nameLimit">
                                 <span class="subheading" style="color: red;">Your tag is too long</span>
                             </v-list-item>
+                            <v-list-item v-else-if="tags.length == 0 && (!search || search.length < 1)">
+                                <span class="subheading" style="margin-right: 7px;">
+                                    Type to create a new tag
+                                </span>
+                            </v-list-item>
                             <v-list-item
                             @click.stop="create(search)"
                             v-else-if="tags.length < tagLimit">
